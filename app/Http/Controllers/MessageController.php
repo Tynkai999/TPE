@@ -21,6 +21,9 @@ class MessageController extends Controller
     {
         $validated = $request->validate([
             'text' => 'required|string',
+            'history' => 'nullable|array',
+            'history.*.role' => 'required|string|in:user,assistant',
+            'history.*.content' => 'required|string',
         ]);
 
         // The authenticated user is provided by the "auth:api" middleware.
@@ -35,7 +38,8 @@ class MessageController extends Controller
         }
 
         try {
-            $response = $orchestrator->handle($validated['text'], $collaboratorUserId);
+            $history = $validated['history'] ?? [];
+            $response = $orchestrator->handle($validated['text'], $collaboratorUserId, $history);
 
             // Attempt to extract a proposal ID like "#123" from the response.
             $proposalId = null;

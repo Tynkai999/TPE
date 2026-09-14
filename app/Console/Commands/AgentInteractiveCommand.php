@@ -58,6 +58,8 @@ class AgentInteractiveCommand extends Command
         $this->info('Commandes spéciales: /confirm <id> | /cancel <id>');
         $this->line('');
 
+        $conversation = [];
+
         // 2. Boucle Interactive
         while (true) {
             $input = $this->ask('Vous');
@@ -130,7 +132,11 @@ class AgentInteractiveCommand extends Command
             // Chat avec l'IA
             try {
                 $this->line('<fg=gray>Agent réfléchit...</>');
-                $response = $orchestrator->handle($input, $userId);
+                $response = $orchestrator->handle($input, $userId, $conversation);
+                
+                // Mise à jour de l'historique
+                $conversation[] = ['role' => 'user', 'content' => $input];
+                $conversation[] = ['role' => 'assistant', 'content' => $response];
                 
                 // Affichage propre de la réponse
                 $this->line("<fg=cyan>Agent :</> {$response}");

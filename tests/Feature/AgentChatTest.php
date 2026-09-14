@@ -40,6 +40,11 @@ class AgentChatTest extends TestCase
             ]),
         ]);
 
+        $this->mock(\App\AI\LLM\LLMProvider::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                 ->andReturn('{"intent":"search_contacts","inactive_days":30}');
+        });
+
         $this->artisan('agent:chat', [
             'message' => 'Trouve mes clients inactifs depuis 30 jours.',
             '--collaborator-user' => '01a08171-7304-7236-8991-7c58c4c86377',

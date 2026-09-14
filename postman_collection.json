@@ -1,0 +1,148 @@
+{
+  "info": {
+    "name": "TPE Message IA - Intégration Frontend",
+    "description": "Collection nettoyée : la vérification CSRF a été désactivée côté serveur pour faciliter les tests automatisés et l'injection de failles.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080", "type": "string" },
+    { "key": "conversation_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "0. Prérequis : Créer une session",
+      "item": [
+        {
+          "name": "0. Login (Pour passer le middleware Auth)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/login", "host": ["{{base_url}}"], "path": ["login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"votre_email_local@exemple.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Initialisation (Liaison du compte)",
+      "item": [
+        {
+          "name": "1. Lier le compte Collaborateur",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/collaborator-account", "host": ["{{base_url}}"], "path": ["collaborator-account"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"deraousmane2004@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Agent IA (Mode Conversationnel)",
+      "item": [
+        {
+          "name": "2A. Nouveau Chat (sans historique)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/chat", "host": ["{{base_url}}"], "path": ["chat"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Fais une proposition de campagne email basée sur le site https://www.nickmayerart.com pour mes clients inactifs\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2B. Répondre (avec historique)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/chat", "host": ["{{base_url}}"], "path": ["chat"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversation_id\": 1,\n  \"message\": \"Quelle amélioration puis-je faire dans ma boutique en ligne vue que tu l'as analysée ?\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Historique des Conversations",
+      "item": [
+        {
+          "name": "3A. Lister les conversations",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/chat/conversations", "host": ["{{base_url}}"], "path": ["chat", "conversations"] }
+          }
+        },
+        {
+          "name": "3B. Récupérer les messages d'une conversation",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/chat/conversations/:conversation_id", "host": ["{{base_url}}"], "path": ["chat", "conversations", ":conversation_id"], "variable": [{ "key": "conversation_id", "value": "1" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Gestion des Campagnes",
+      "item": [
+        {
+          "name": "4A. Confirmer une campagne",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/ai-commands/:command_id/confirm", "host": ["{{base_url}}"], "path": ["ai-commands", ":command_id", "confirm"], "variable": [{ "key": "command_id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "4B. Envoyer la campagne",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/ai-commands/:command_id/send", "host": ["{{base_url}}"], "path": ["ai-commands", ":command_id", "send"], "variable": [{ "key": "command_id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "4C. Annuler la campagne",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": { "raw": "{{base_url}}/ai-commands/:command_id/cancel", "host": ["{{base_url}}"], "path": ["ai-commands", ":command_id", "cancel"], "variable": [{ "key": "command_id", "value": "1" }] }
+          }
+        }
+      ]
+    }
+  ]
+}

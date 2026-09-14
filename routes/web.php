@@ -19,6 +19,8 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::view('/chat', 'chat');
+    Route::get('/chat/conversations', [ChatController::class, 'index']);
+    Route::get('/chat/conversations/{id}', [ChatController::class, 'show']);
     Route::post('/chat', [ChatController::class, 'store'])->middleware('throttle:30,1');
     Route::post('/collaborator-account', [CollaboratorAccountController::class, 'store'])->middleware('throttle:10,1');
     Route::post('/ai-commands/{command}/confirm', [CampaignCommandController::class, 'confirm'])->middleware('throttle:20,1');

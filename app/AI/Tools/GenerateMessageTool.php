@@ -104,28 +104,48 @@ Exemple de qualité attendue :
 SMS,
 
             'email' => $baseIdentity . "\n\n" . <<<'EMAIL'
-FORMAT : Email Marketing Complet.
-Structure obligatoire avec séparateurs clairs :
+FORMAT : Campagne Email Ultra-Professionnelle et Persuasive.
+Tu dois rédiger une newsletter/email marketing riche, structuré et très qualitatif (formaté en Markdown). Utilise le framework de copywriting AIDA (Attention, Intérêt, Désir, Action) ou PAS (Problème, Agitation, Solution).
 
-**OBJET :** [Ligne d'objet accrocheuse, 50-70 caractères, avec emoji si pertinent]
+Structure stricte à respecter :
 
-**PRÉ-HEADER :** [Texte de pré-visualisation, 80-100 caractères]
+**OBJET :** [Propose 3 options d'objets ultra-cliquables (pour A/B testing) avec emojis]
+**PRÉ-HEADER :** [Texte de teasing impactant, 80-100 caractères]
 
 ---
+*[Suggestion visuelle : Décris une image principale pertinente à insérer ici (ex: Photo chaleureuse, visuel produit, etc.)]*
 
-**CORPS DE L'EMAIL :**
+# [Grand titre accrocheur (H1)]
 
-1. **Accroche** (2-3 phrases) — Interpelle le destinataire, crée une connexion émotionnelle ou pose une question rhétorique liée à son besoin.
+*Bonjour [Prénom],*
 
-2. **Proposition de valeur** (3-5 phrases) — Présente l'offre ou le service mis en avant. Utilise des bullet points (•) pour lister les bénéfices concrets. Mets en gras les mots-clés importants.
+**[L'Accroche / Le Problème]** 
+Commence par une histoire courte, une question forte ou le constat d'une situation que vit le client. Capte immédiatement l'attention. (3-4 phrases)
 
-3. **Preuve / Crédibilité** (1-2 phrases) — Mentionne l'expertise, l'ancienneté, un chiffre clé ou une spécialité distinctive de l'entreprise.
+**[La Solution / La Proposition de Valeur]**
+Présente le produit, l'offre ou la nouveauté de manière séduisante. Montre que c'est la solution évidente ou l'opportunité à ne pas manquer. 
 
-4. **Appel à l'action (CTA)** — Un bouton ou lien clair avec un verbe d'action : « Découvrir maintenant », « Réserver mon créneau », « Profiter de l'offre ».
+**[Pourquoi vous allez adorer (Les Bénéfices)]**
+* ✅ **[Bénéfice 1]** : [Explication de l'impact positif concret]
+* ✅ **[Bénéfice 2]** : [Explication de l'impact positif concret]
+* ✅ **[Bénéfice 3]** : [Explication de l'impact positif concret]
 
-5. **Signature professionnelle** — Nom de l'entreprise, secteur, coordonnées suggérées.
+*[Suggestion visuelle : Image secondaire ou bouton]*
 
-Le résultat doit faire entre 150 et 300 mots — une vraie campagne email prête à envoyer.
+**[Preuve sociale ou Réassurance]**
+Ajoute un élément de confiance : témoignage fictif mais ultra-réaliste, garantie, mention de l'expertise de l'entreprise, ou chiffre clé.
+
+**[Appel à l'action / Bouton]**
+👉 **[ TEXTE DU BOUTON CTA - Ex: Découvrir l'offre, Réserver ma place ]** 👈
+
+*Signature chaleureuse,*
+**L'équipe [Nom de l'entreprise]**
+[Secteur / Coordonnées]
+
+---
+**P.S.** : [Le post-scriptum est indispensable. Ajoute un P.S. créant un sentiment d'urgence ou rappelant le bénéfice principal de manière amicale et directe.]
+
+L'email doit être aéré, utiliser du gras pour les mots importants, et faire au moins 300 à 450 mots. C'est une vraie campagne de copywriting haut de gamme.
 EMAIL,
 
             'whatsapp' => $baseIdentity . "\n\n" . <<<'WHATSAPP'

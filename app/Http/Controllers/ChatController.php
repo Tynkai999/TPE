@@ -65,9 +65,46 @@ class ChatController extends Controller
         ]);
         $conversation->touch();
 
+        // Extraire l'ID de la proposition de campagne pour faciliter le frontend (ex: #30)
+        $proposalId = null;
+        if (preg_match('/#(\d+)/', $answer, $matches)) {
+            $proposalId = (int) $matches[1];
+        }
+
         return response()->json([
             'conversation_id' => $conversation->id,
             'answer' => $answer,
+            'proposal_id' => $proposalId,
+        ]);
+    }
+
+    /**
+     * Liste les conversations de l'utilisateur.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $conversations = $request->user()->conversations()
+            ->orderByDesc('updated_at')
+            ->get(['id', 'title', 'updated_at', 'created_at']);
+
+        return response()->json([
+            'conversations' => $conversations,
+        ]);
+    }
+
+    /**
+     * Affiche les détails et les messages d'une conversation spécifique.
+     */
+    public function show(Request $request, $id): JsonResponse
+    {
+        $conversation = $request->user()->conversations()
+            ->with(['messages' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            }])
+            ->findOrFail($id);
+
+        return response()->json([
+            'conversation' => $conversation,
         ]);
     }
 }

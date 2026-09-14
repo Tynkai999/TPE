@@ -25,13 +25,17 @@ class AgentOrchestrator
         ?string $collaboratorUserId = null,
         array $conversation = [],
     ): string {
-        $parsedCommand = $this->parser->parse($userMessage);
+        $parsedCommand = $this->parser->parse($userMessage, $conversation);
         $intent = $parsedCommand['intent'] ?? null;
 
         // 1. Gestion de l'analyse de site web et proposition de campagne ciblée
         if ($intent === 'analyze_website' && !empty($parsedCommand['url'])) {
             if (!$collaboratorUserId) {
                 return "Votre compte local n’est pas encore relié à un compte collaborateur. Reliez-le avant de pouvoir analyser votre site et cibler vos contacts.";
+            }
+
+            if (($parsedCommand['channel'] ?? 'unknown') === 'unknown') {
+                return "Sur quel canal souhaitez-vous envoyer cette campagne ? (SMS, Email ou WhatsApp) ?";
             }
 
             // Exécution du tool d'analyse de site web
@@ -130,6 +134,10 @@ class AgentOrchestrator
         if ($intent === 'prepare_campaign') {
             if (!$collaboratorUserId) {
                 return 'Votre compte local n’est pas encore relié à un compte collaborateur. Reliez-le avant de demander vos contacts.';
+            }
+
+            if (($parsedCommand['channel'] ?? 'unknown') === 'unknown') {
+                return "Sur quel canal souhaitez-vous envoyer cette campagne ? (SMS, Email ou WhatsApp) ?";
             }
 
             $audienceType = $parsedCommand['audience'] ?? 'all';

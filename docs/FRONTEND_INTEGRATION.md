@@ -16,34 +16,28 @@ Content-Type: application/json
 X-CSRF-TOKEN: <token de la page>
 ```
 
-## Résumé des endpoints
+## Prérequis d'Authentification
+
+L'authentification (login, register, logout) est **gérée par le backend de Dera**.
+Ce module IA suppose que l'utilisateur est déjà authentifié au sein de la session Laravel courante (ou via un jeton si configuré autrement dans votre application). Le frontend doit rediriger l'utilisateur vers votre page de login s'il reçoit une réponse `401` sur les routes du module.
+
+## Résumé des endpoints (Module IA)
 
 | Méthode | Route | Auth | Description |
 |---|---|---|---|
-| POST | `/register` | invité | Création de compte Laravel |
-| POST | `/login` | invité | Connexion Laravel |
-| POST | `/logout` | connecté | Déconnexion |
 | POST | `/collaborator-account` | connecté | Liaison du compte à l'API collaborateur |
+| GET | `/chat/conversations` | connecté | Liste l'historique des conversations de l'utilisateur |
+| GET | `/chat/conversations/{id}`| connecté | Récupère les messages d'une conversation spécifique |
 | POST | `/chat` | connecté | Envoi d'un message à l'agent IA |
 | POST | `/ai-commands/{id}/confirm` | connecté | Confirme une proposition de campagne |
 | POST | `/ai-commands/{id}/cancel` | connecté | Annule une proposition |
 | POST | `/ai-commands/{id}/send` | connecté | Envoie une campagne confirmée |
 
-Toutes ces routes sont limitées en fréquence (`throttle`) : 10 requêtes/minute pour l'authentification et la liaison de compte, 20/minute pour les actions sur une proposition, 30/minute pour `/chat`. Une réponse `429` signifie que la limite a été atteinte ; le frontend doit afficher un message d'attente plutôt que de relancer immédiatement.
+Toutes ces routes sont limitées en fréquence (`throttle`) : 10 requêtes/minute pour la liaison de compte, 20/minute pour les actions sur une proposition, 30/minute pour `/chat`. Une réponse `429` signifie que la limite a été atteinte ; le frontend doit afficher un message d'attente plutôt que de relancer immédiatement.
 
-## Authentification locale
+## Lier le compte API de Dera
 
-```http
-POST /register
-POST /login
-POST /logout
-```
-
-Le frontend doit rediriger l'utilisateur vers `/login` lorsqu'il reçoit une réponse `401` sur une route protégée.
-
-## Lier le compte API collaborateur
-
-Un utilisateur Laravel doit d'abord relier son compte à son compte de la plateforme collaborateur :
+Un utilisateur Laravel doit d'abord relier son compte à son compte de la plateforme principale :
 
 ```http
 POST /collaborator-account
@@ -74,6 +68,58 @@ Le mot de passe est utilisé côté backend pour obtenir les tokens. Les tokens 
 
 Une activation 2FA du compte collaborateur doit être traitée séparément avant la liaison, car la liaison actuelle attend une connexion sans challenge 2FA.
 
+## Historique des conversations
+
+### Lister les conversations
+```http
+GET /chat/conversations
+```
+
+Réponse `200` :
+```json
+{
+  "conversations": [
+    {
+      "id": 12,
+      "title": "Fais une proposition de campagne email...",
+      "created_at": "2023-10-27T10:00:00.000000Z",
+      "updated_at": "2023-10-27T10:05:00.000000Z"
+    }
+  ]
+}
+```
+
+### Charger les messages d'une conversation
+```http
+GET /chat/conversations/{id}
+```
+
+Réponse `200` :
+```json
+{
+  "conversation": {
+    "id": 12,
+    "title": "Fais une proposition de campagne email...",
+    "created_at": "2023-10-27T10:00:00.000000Z",
+    "updated_at": "2023-10-27T10:05:00.000000Z",
+    "messages": [
+      {
+        "id": 45,
+        "role": "user",
+        "content": "Fais une proposition de campagne email...",
+        "created_at": "2023-10-27T10:00:00.000000Z"
+      },
+      {
+        "id": 46,
+        "role": "assistant",
+        "content": "J'ai analysé votre site...",
+        "created_at": "2023-10-27T10:01:00.000000Z"
+      }
+    ]
+  }
+}
+```
+
 ## Envoyer un message à l'agent
 
 ```http
@@ -102,9 +148,14 @@ Réponse :
 ```json
 {
   "conversation_id": 12,
-  "answer": "J'ai trouvé 1 contacts dans votre compte collaborateur."
+  "answer": "J'ai trouvé 1 contacts dans votre compte collaborateur.",
+  "proposal_id": null
 }
 ```
+
+**Note sur `proposal_id` :** 
+Lorsque l'IA génère une campagne, elle renvoie le texte de la campagne avec un ID (ex: `#30`). Le backend extrait automatiquement ce numéro et le renvoie dans le champ `proposal_id`. 
+Le frontend peut s'en servir pour afficher des boutons d'actions ("Confirmer", "Annuler") directement dans l'UI du chat.
 
 La conversation et les messages sont enregistrés côté Laravel. Le `collaborator_user_id` vient de la liaison du compte authentifié, jamais d'un champ envoyé par le frontend.
 
@@ -211,23 +262,5 @@ PROPOSED  -> CANCELLED
 - **Le modèle IA tourne actuellement en local** (LM Studio sur la machine de développement du backend), pas sur un serveur dédié. Les réponses de `/chat` peuvent donc être plus lentes qu'en production et le endpoint peut renvoyer une erreur 500 si le LLM local n'est pas démarré. Prévoir un état de chargement et un message d'erreur générique, sans dépendre d'un temps de réponse fixe.
 - **Aucun endpoint d'analyse/statistiques n'est disponible pour l'instant** : l'API collaborateur n'expose pas encore de route analytics/résultats de campagne exploitable par l'agent. Une demande utilisateur du type « analyse les résultats de ma campagne » sera traitée comme une question générale par le LLM, sans données réelles. Ne pas construire d'écran de statistiques tant que ce point n'est pas confirmé avec le backend collaborateur.
 - Les contacts en opt-out sont désormais automatiquement exclus par le backend lors de la création d'une campagne ; le frontend n'a rien à gérer de ce côté.
-
-## Vérification locale
-
-```bash
-docker compose exec app php artisan test
-```
-
-Tests du contrat frontend :
-
-```bash
-docker compose exec app php artisan test --filter=FrontendCampaignApiTest
-```
-
-Test réel en lecture seule de l'API collaborateur :
-
-```bash
-docker compose exec app php artisan tinker --execute="\$manager = app(\App\AI\Http\CollaboratorTokenManager::class); \$account = \$manager->login(config('collaborator.test_email'), config('collaborator.test_password')); \$token = \$manager->getValidAccessToken(\$account->collaborator_user_id); \$contacts = app(\App\AI\Http\CollaboratorApiClient::class)->get('/contacts', accessToken: \$token); echo 'Contacts récupérés : ' . count(\$contacts['data']['data'] ?? \$contacts['data'] ?? \$contacts) . PHP_EOL;"
-```
 
 Aucun test automatique ne déclenche un envoi réel. Pour un test réel, vérifier manuellement le canal, le groupe et les destinataires avant d'appeler `/send`.
