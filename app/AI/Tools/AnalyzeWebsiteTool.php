@@ -25,6 +25,27 @@ class AnalyzeWebsiteTool implements Tool
         return 'Extrait et analyse le contenu d\'un site web pour établir le profil commercial et marketing d\'une entreprise.';
     }
 
+    public function getDefinition(): array
+    {
+        return [
+            'type' => 'function',
+            'function' => [
+                'name' => $this->name(),
+                'description' => $this->description(),
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'url' => [
+                            'type' => 'string',
+                            'description' => 'L\'URL publique du site web à analyser (ex: https://example.com)'
+                        ],
+                    ],
+                    'required' => ['url'],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @param array<string, mixed> $arguments
      *   - url (string, obligatoire)
@@ -89,10 +110,12 @@ Tu DOIS répondre EXCLUSIVEMENT sous la forme d'un objet JSON valide, sans balis
 }
 PROMPT;
 
-        $llmResponse = $this->llm->chat([
+        $llmResult = $this->llm->chat([
             ['role' => 'system', 'content' => $systemPrompt],
             ['role' => 'user', 'content' => $promptContext],
         ]);
+
+        $llmResponse = is_array($llmResult) ? (string) ($llmResult['content'] ?? '') : (string) $llmResult;
 
         $cleanedResponse = trim(preg_replace('/^```(?:json)?|```$/m', '', $llmResponse) ?? $llmResponse);
 

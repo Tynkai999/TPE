@@ -39,12 +39,17 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(CreateCampaignTool::class);
         $this->app->singleton(SendCampaignTool::class);
         $this->app->singleton(\App\AI\Tools\AnalyzeWebsiteTool::class);
+        $this->app->singleton(\App\AI\Tools\SaveCampaignProposalTool::class);
+        $this->app->singleton(\App\AI\Tools\GenerateSocialPostTool::class);
+        
         $this->app->afterResolving(\App\AI\Tools\ToolRegistry::class, function ($registry) {
             $registry->register($this->app->make(SearchContactsTool::class));
             $registry->register($this->app->make(GenerateMessageTool::class));
             $registry->register($this->app->make(CreateCampaignTool::class));
             $registry->register($this->app->make(SendCampaignTool::class));
             $registry->register($this->app->make(\App\AI\Tools\AnalyzeWebsiteTool::class));
+            $registry->register($this->app->make(\App\AI\Tools\SaveCampaignProposalTool::class));
+            $registry->register($this->app->make(\App\AI\Tools\GenerateSocialPostTool::class));
         });
         $this->app->singleton(\App\AI\Http\CollaboratorApiClient::class, fn () => new \App\AI\Http\CollaboratorApiClient(
             baseUrl: config('collaborator.base_url'),

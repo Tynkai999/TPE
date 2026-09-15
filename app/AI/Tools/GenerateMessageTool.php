@@ -21,6 +21,35 @@ class GenerateMessageTool implements Tool
         return 'Génère un brouillon complet de campagne marketing professionnelle à soumettre à confirmation.';
     }
 
+    public function getDefinition(): array
+    {
+        return [
+            'type' => 'function',
+            'function' => [
+                'name' => $this->name(),
+                'description' => $this->description(),
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'offer' => ['type' => 'string', 'description' => 'L\'offre ou la promotion (ex: "15% de réduction")'],
+                        'audience' => ['type' => 'string', 'description' => 'Le type d\'audience (ex: "clients inactifs depuis 30 jours")'],
+                        'business_name' => ['type' => 'string', 'description' => 'Le nom de l\'entreprise'],
+                        'tone' => ['type' => 'string', 'description' => 'Le ton de la campagne (ex: chaleureux, professionnel)'],
+                        'channel' => ['type' => 'string', 'enum' => ['sms', 'email', 'whatsapp'], 'description' => 'Le canal de diffusion de la campagne'],
+                        'key_offering' => ['type' => 'string', 'description' => 'Le produit ou service phare à mettre en avant'],
+                        'activity_sector' => ['type' => 'string', 'description' => 'Le secteur d\'activité (ex: "Art et illustration")'],
+                        'key_offerings_list' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                            'description' => 'Liste complète de produits/services secondaires'
+                        ],
+                    ],
+                    'required' => ['audience', 'channel'],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @param array<string, mixed> $arguments
      *   - offer (string, obligatoire si key_offering non fourni)
@@ -66,12 +95,12 @@ class GenerateMessageTool implements Tool
             allOfferings: $allOfferings,
         );
 
-        $message = $this->llm->chat([
+        $response = $this->llm->chat([
             ['role' => 'system', 'content' => $systemPrompt],
             ['role' => 'user', 'content' => $userPrompt],
         ]);
 
-        return ['message' => trim($message)];
+        return ['message' => trim($response['content'] ?? '')];
     }
 
     /**
@@ -104,52 +133,50 @@ Exemple de qualité attendue :
 SMS,
 
             'email' => $baseIdentity . "\n\n" . <<<'EMAIL'
-FORMAT : Campagne Email Ultra-Professionnelle et Persuasive.
+FORMAT : Campagne Email Ultra-Professionnelle et Persuasive (ATTENTION : 800 CARACTÈRES MAXIMUM).
 Tu dois rédiger une newsletter/email marketing riche, structuré et très qualitatif (formaté en Markdown). Utilise le framework de copywriting AIDA (Attention, Intérêt, Désir, Action) ou PAS (Problème, Agitation, Solution).
 
 Structure stricte à respecter :
 
-**OBJET :** [Propose 3 options d'objets ultra-cliquables (pour A/B testing) avec emojis]
-**PRÉ-HEADER :** [Texte de teasing impactant, 80-100 caractères]
+**OBJET :** [Propose 3 options d'objets ultra-cliquables avec emojis]
+**PRÉ-HEADER :** [Texte de teasing impactant, 80 caractères]
 
 ---
-*[Suggestion visuelle : Décris une image principale pertinente à insérer ici (ex: Photo chaleureuse, visuel produit, etc.)]*
+*[Suggestion visuelle : Décris une image principale pertinente à insérer ici]*
 
 # [Grand titre accrocheur (H1)]
 
 *Bonjour [Prénom],*
 
 **[L'Accroche / Le Problème]** 
-Commence par une histoire courte, une question forte ou le constat d'une situation que vit le client. Capte immédiatement l'attention. (3-4 phrases)
+Commence par une histoire courte, une question forte ou le constat d'une situation que vit le client. Capte immédiatement l'attention.
 
 **[La Solution / La Proposition de Valeur]**
-Présente le produit, l'offre ou la nouveauté de manière séduisante. Montre que c'est la solution évidente ou l'opportunité à ne pas manquer. 
+Présente le produit, l'offre ou la nouveauté de manière séduisante. Montre que c'est la solution évidente.
 
 **[Pourquoi vous allez adorer (Les Bénéfices)]**
-* ✅ **[Bénéfice 1]** : [Explication de l'impact positif concret]
-* ✅ **[Bénéfice 2]** : [Explication de l'impact positif concret]
-* ✅ **[Bénéfice 3]** : [Explication de l'impact positif concret]
+* ✅ **[Bénéfice 1]** : [Explication courte]
+* ✅ **[Bénéfice 2]** : [Explication courte]
 
 *[Suggestion visuelle : Image secondaire ou bouton]*
 
 **[Preuve sociale ou Réassurance]**
-Ajoute un élément de confiance : témoignage fictif mais ultra-réaliste, garantie, mention de l'expertise de l'entreprise, ou chiffre clé.
+Ajoute un élément de confiance : garantie, mention de l'expertise de l'entreprise, ou chiffre clé.
 
 **[Appel à l'action / Bouton]**
-👉 **[ TEXTE DU BOUTON CTA - Ex: Découvrir l'offre, Réserver ma place ]** 👈
+👉 **[ TEXTE DU BOUTON CTA - Ex: Découvrir l'offre ]** 👈
 
 *Signature chaleureuse,*
 **L'équipe [Nom de l'entreprise]**
-[Secteur / Coordonnées]
 
 ---
-**P.S.** : [Le post-scriptum est indispensable. Ajoute un P.S. créant un sentiment d'urgence ou rappelant le bénéfice principal de manière amicale et directe.]
+**P.S.** : [Ajoute un P.S. créant un sentiment d'urgence ou rappelant le bénéfice principal de manière amicale.]
 
-L'email doit être aéré, utiliser du gras pour les mots importants, et faire au moins 300 à 450 mots. C'est une vraie campagne de copywriting haut de gamme.
+L'email doit être concis et aéré. RÈGLE CRITIQUE : LE TEXTE ENTIER NE DOIT ABSOLUMENT PAS DÉPASSER 800 CARACTÈRES.
 EMAIL,
 
             'whatsapp' => $baseIdentity . "\n\n" . <<<'WHATSAPP'
-FORMAT : Message WhatsApp Business (500-800 caractères).
+FORMAT : Message WhatsApp Business (400-800 caractères max).
 Structure obligatoire :
 
 1. **Salutation chaleureuse** avec emoji contextuel
@@ -158,12 +185,13 @@ Structure obligatoire :
 4. **CTA conversationnel** — « Répondez OUI pour en savoir plus », « Cliquez ici pour réserver », etc.
 5. **Signature** de l'entreprise
 
-Ton : conversationnel mais professionnel, comme un message personnalisé d'un conseiller de confiance.
+Ton : conversationnel mais professionnel. RÈGLE CRITIQUE : NE PAS DÉPASSER 800 CARACTÈRES.
 WHATSAPP,
 
             default => $baseIdentity . "\n\n" . <<<'DEFAULT'
-FORMAT : Message Marketing Complet (200-400 mots).
+FORMAT : Message Marketing Complet (MAX 800 CARACTÈRES).
 Produis une campagne complète avec accroche, corps développé, bénéfices listés, CTA et signature.
+RÈGLE CRITIQUE : NE DÉPASSE JAMAIS 800 CARACTÈRES AU TOTAL.
 DEFAULT,
         };
     }

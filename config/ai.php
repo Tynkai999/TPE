@@ -10,7 +10,7 @@ return [
     */
     'lm_studio' => [
         'base_url'    => env('LM_STUDIO_BASE_URL', 'http://host.docker.internal:1234'),
-        'model'       => env('LM_STUDIO_MODEL', 'meta-llama-3.1-8b-instruct'),
+        'model'       => env('LM_STUDIO_MODEL', 'qwen2.5-7b-instruct'),
         'timeout'     => (int) env('LM_STUDIO_TIMEOUT', 120),
         'temperature' => (float) env('LM_STUDIO_TEMPERATURE', 0.7),
         'max_tokens'  => (int) env('LM_STUDIO_MAX_TOKENS', 4096),

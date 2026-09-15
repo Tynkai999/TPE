@@ -20,7 +20,28 @@ class SearchContactsTool implements Tool
 
     public function description(): string
     {
-        return 'Recherche les contacts du collaborateur avec des filtres CRM.';
+        return 'Recherche les contacts du collaborateur avec des filtres CRM (ex: clients inactifs).';
+    }
+
+    public function getDefinition(): array
+    {
+        return [
+            'type' => 'function',
+            'function' => [
+                'name' => $this->name(),
+                'description' => $this->description(),
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'inactive_days' => [
+                            'type' => 'integer',
+                            'description' => 'Nombre de jours d\'inactivité pour filtrer les clients (ex: 30)'
+                        ],
+                    ],
+                    'required' => [],
+                ],
+            ],
+        ];
     }
 
     /**

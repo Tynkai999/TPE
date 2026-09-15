@@ -23,6 +23,23 @@ class SendCampaignTool implements Tool
         return "Déclenche l'envoi d'une campagne brouillon confirmée.";
     }
 
+    public function getDefinition(): array
+    {
+        return [
+            'type' => 'function',
+            'function' => [
+                'name' => $this->name(),
+                'description' => $this->description(),
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'campaign_id' => ['type' => 'string'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @param array<string, mixed> $arguments
      * @return array<string, mixed>

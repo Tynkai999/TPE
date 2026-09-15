@@ -24,6 +24,25 @@ class CreateCampaignTool implements Tool
         return 'Crée un groupe ciblé puis une campagne en brouillon.';
     }
 
+    public function getDefinition(): array
+    {
+        return [
+            'type' => 'function',
+            'function' => [
+                'name' => $this->name(),
+                'description' => $this->description(),
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'name' => ['type' => 'string'],
+                        'content' => ['type' => 'string'],
+                        'message_channel' => ['type' => 'string'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @param array<string, mixed> $arguments
      * @return array<string, mixed>

@@ -89,7 +89,8 @@ PROMPT;
         $messages[] = ['role' => 'user', 'content' => $message];
 
         try {
-            $response = $this->llm->chat($messages);
+            $responseArr = $this->llm->chat($messages);
+            $response = $responseArr['content'] ?? '';
         } catch (\Throwable) {
             $response = '';
         }
